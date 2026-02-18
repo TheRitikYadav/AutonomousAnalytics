@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="AutonomousAnalytics — Monitor and manage your n8n automations and IoT devices from a single premium dashboard." />
+    <title>AutonomousAnalytics | Autonomous System Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- ===== Sidebar ===== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <img src="logo.png" alt="Logo" class="logo-img">
+                <h1>Autonomous<span>Analytics System</span></h1>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a class="nav-item active" data-page="dashboard">
+                        <span class="nav-icon">📊</span> Dashboard
+                    </a>
+                    <a class="nav-item" data-page="analytics">
+                        <span class="nav-icon">📈</span> Analytics
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Automations</div>
+                    <a class="nav-item" data-page="automations">
+                        <span class="nav-icon">⚡</span> All Automations
+                    </a>
+                    <a class="nav-item" data-page="n8n">
+                        <span class="nav-icon">🔗</span> n8n Workflows
+                        <span class="nav-badge" id="nav-error-count">2</span>
+                    </a>
+                    <a class="nav-item" data-page="iot">
+                        <span class="nav-icon">📡</span> IoT Devices
+                    </a>
+                    <a class="nav-item" data-page="schedules">
+                        <span class="nav-icon">⏰</span> Schedules
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a class="nav-item" data-page="alerts">
+                        <span class="nav-icon">🔔</span> Alerts
+                        <span class="nav-badge" id="nav-alert-count">2</span>
+                    </a>
+                    <a class="nav-item" data-page="logs">
+                        <span class="nav-icon">📋</span> Logs
+                    </a>
+                    <a class="nav-item" data-page="settings">
+                        <span class="nav-icon">⚙️</span> Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info" id="profile-trigger" style="cursor:pointer">
+                    <img src="profile.png" class="user-avatar-img" alt="Ritik"
+                        onerror="this.src='https://ui-avatars.com/api/?name=Ritik+Yadav&background=random'">
+                    <div class="user-details">
+                        <div class="user-name">Ritik Yadav</div>
+                        <div class="user-role">System Admin</div>
+                    </div>
+                    <span style="margin-left:auto;color:var(--text-muted);font-size:12px">›</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar overlay (mobile) -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- ===== Main ===== -->
+        <main class="main">
+
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="hamburger" id="hamburger" aria-label="Toggle menu">☰</button>
+                    <div class="header-title">
+                        <h2>Dashboard</h2>
+                        <p>Real-time overview of your autonomous systems</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="search-wrapper">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" placeholder="Search automations…" id="search-input" autocomplete="off" />
+                        </div>
+                        <div class="search-dropdown" id="search-dropdown"></div>
+                    </div>
+                    <button class="header-btn" id="notif-btn" aria-label="Notifications">
+                        🔔
+                        <span class="notif-dot"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content" id="page-dashboard">
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid" id="kpi-grid"></div>
+
+                <!-- Chart + Alerts -->
+                <div class="grid-2col">
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h3>📉 Automation Health — Last 7 Days</h3>
+                            <div class="section-actions">
+                                <button class="btn btn-ghost">Weekly</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="health-chart"></canvas>
+                            <div class="chart-tooltip" id="chart-tooltip"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card" id="alerts-section">
+                        <div class="section-header">
+                            <h3>🚨 Alerts & Warnings</h3>
+                            <div class="section-actions">
+                                <button class="btn btn-ghost">View All</button>
+                            </div>
+                        </div>
+                        <div class="alerts-feed" id="alerts-feed"></div>
+                    </div>
+                </div>
+
+                <!-- Active Automations Table -->
+                <div class="glass-card" style="margin-bottom: var(--space-xl);">
+                    <div class="section-header">
+                        <h3>⚡ Active Automations</h3>
+                        <div class="section-actions">
+                            <button class="btn btn-ghost">Filter</button>
+                            <button class="btn btn-primary"
+                                onclick="document.getElementById('modal-overlay').classList.add('active')">+
+                                Add</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="automations-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Success Rate</th>
+                                    <th>Last Run</th>
+                                    <th>Executions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="automations-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- IoT Devices -->
+                <div class="section-header">
+                    <h3>📡 IoT Devices</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-ghost">All Devices</button>
+                    </div>
+                </div>
+                <div class="iot-grid" id="iot-grid"></div>
+
+                <!-- Add Automated App -->
+                <div class="add-app-card" id="add-app-card">
+                    <div class="add-app-icon">＋</div>
+                    <h4>Add Automated App</h4>
+                    <p>Register a new n8n workflow or IoT device to your dashboard</p>
+                </div>
+
+            </div><!-- /page-dashboard -->
+
+            <!-- ===== All Automations Page ===== -->
+            <div class="content page-hidden" id="page-automations">
+                <div class="glass-card">
+                    <div class="section-header">
+                        <h3>⚡ All Automations</h3>
+                        <div class="section-actions">
+                            <button class="btn btn-primary"
+                                onclick="document.getElementById('modal-overlay').classList.add('active')">+ Add
+                                New</button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="auto-filter-bar">
+                        <div class="auto-filter-tabs" id="auto-filter-tabs">
+                            <button class="auto-tab active" data-filter="all">All</button>
+                            <button class="auto-tab" data-filter="n8n">🔗 n8n</button>
+                            <button class="auto-tab" data-filter="iot">📡 IoT</button>
+                            <button class="auto-tab" data-filter="schedule">⏰ Schedules</button>
+                        </div>
+                        <div class="auto-search">
+                            <input type="text" id="auto-page-search" placeholder="Search automations..." />
+                        </div>
+                    </div>
+
+                    <!-- Automation Cards Grid -->
+                    <div class="auto-cards-grid" id="auto-cards-grid"></div>
+                </div>
+            </div><!-- /page-automations -->
+
+            <!-- ===== Analytics Page ===== -->
+            <div class="content page-hidden" id="page-analytics">
+
+                <!-- Analytics Overview KPIs -->
+                <div class="analytics-kpi-grid" id="analytics-kpi-grid"></div>
+
+                <!-- Row: Status Donut + Daily Trend -->
+                <div class="grid-2col" style="margin-bottom:var(--space-xl)">
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h3>📊 Execution Status Distribution</h3>
+                        </div>
+                        <div class="analytics-chart-area">
+                            <canvas id="status-donut" width="280" height="280"></canvas>
+                            <div id="status-legend" class="chart-legend"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h3>📈 Daily Execution Trend (14 Days)</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="daily-trend-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row: Hourly Heatmap + Mode Distribution -->
+                <div class="grid-2col" style="margin-bottom:var(--space-xl)">
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h3>🕐 Hourly Activity Heatmap</h3>
+                        </div>
+                        <div class="hourly-heatmap" id="hourly-heatmap"></div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h3>⚙️ Execution Mode Breakdown</h3>
+                        </div>
+                        <div class="mode-breakdown" id="mode-breakdown"></div>
+                    </div>
+                </div>
+
+                <!-- Workflow Performance Table -->
+                <div class="glass-card" style="margin-bottom:var(--space-xl)">
+                    <div class="section-header">
+                        <h3>🔍 Per-Workflow Performance</h3>
+                        <div class="section-actions">
+                            <span class="analytics-subtext" id="wf-perf-count"></span>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="automations-table analytics-table">
+                            <thead>
+                                <tr>
+                                    <th>Workflow</th>
+                                    <th>Status</th>
+                                    <th>Nodes</th>
+                                    <th>Executions</th>
+                                    <th>Success</th>
+                                    <th>Errors</th>
+                                    <th>Rate</th>
+                                    <th>Avg Duration</th>
+                                    <th>Last Run</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wf-perf-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Row: Error Analysis + Tag Analytics -->
+                <div class="grid-2col" style="margin-bottom:var(--space-xl)">
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h3>🚨 Error Analysis</h3>
+                        </div>
+                        <div id="error-analysis"></div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h3>🏷️ Tag Analytics</h3>
+                        </div>
+                        <div id="tag-analytics"></div>
+                    </div>
+                </div>
+
+            </div><!-- /page-analytics -->
+
+            <!-- ===== Alerts Page ===== -->
+            <div class="content page-hidden" id="page-alerts">
+                <div class="page-title-bar">
+                    <h2>🔔 Alerts & Notifications</h2>
+                    <span class="analytics-subtext" id="alerts-total-count"></span>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="alerts-filters">
+                    <button class="auto-tab active" data-severity="all">All</button>
+                    <button class="auto-tab" data-severity="critical">🔴 Critical</button>
+                    <button class="auto-tab" data-severity="warning">🟡 Warning</button>
+                    <button class="auto-tab" data-severity="info">🔵 Info</button>
+                    <div style="flex:1"></div>
+                    <button class="btn-action" id="mark-all-read">✓ Mark All Read</button>
+                </div>
+
+                <!-- Summary Bar -->
+                <div class="alerts-summary" id="alerts-summary"></div>
+
+                <!-- Alerts List -->
+                <div class="alerts-list" id="alerts-list"></div>
+            </div><!-- /page-alerts -->
+
+            <!-- ===== Logs Page ===== -->
+            <div class="content page-hidden" id="page-logs">
+                <div class="page-title-bar">
+                    <h2>📋 Execution Logs</h2>
+                    <span class="analytics-subtext" id="logs-total-count"></span>
+                </div>
+
+                <!-- Logs Controls -->
+                <div class="logs-controls">
+                    <input type="text" class="logs-search" id="logs-search"
+                        placeholder="Search by workflow name or ID...">
+                    <select class="logs-filter" id="logs-status-filter">
+                        <option value="all">All Statuses</option>
+                        <option value="success">✅ Success</option>
+                        <option value="error">❌ Error</option>
+                        <option value="running">🔄 Running</option>
+                        <option value="waiting">⏳ Waiting</option>
+                    </select>
+                </div>
+
+                <!-- Logs Table -->
+                <div class="glass-card" style="overflow-x:auto">
+                    <table class="automations-table logs-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Workflow</th>
+                                <th>Status</th>
+                                <th>Mode</th>
+                                <th>Started</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-tbody"></tbody>
+                    </table>
+                </div>
+            </div><!-- /page-logs -->
+
+        </main>
+    </div><!-- /app -->
+
+    <!-- ===== Profile Panel ===== -->
+    <div class="panel-overlay" id="profile-overlay">
+        <div class="side-panel">
+            <div class="panel-header">
+                <h3>👤 Profile</h3>
+                <button class="modal-close" id="profile-close">✕</button>
+            </div>
+            <div class="panel-body">
+                <div class="profile-card">
+                    <img src="profile.png" class="profile-avatar-img-lg" alt="Ritik"
+                        onerror="this.src='https://ui-avatars.com/api/?name=Ritik+Yadav&background=random&size=128'">
+                    <h4>Ritik Yadav</h4>
+                    <p class="profile-role">System Administrator</p>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-row"><span class="profile-label">📧
+                            Email</span><span>contact@ritikyadav.com.np</span></div>
+                    <div class="profile-row"><span class="profile-label">🏢
+                            Organization</span><span>AutonomousAnalytics</span></div>
+                    <div class="profile-row"><span class="profile-label">📍 Location</span><span>United States
+                            (CST)</span>
+                    </div>
+                    <div class="profile-row"><span class="profile-label">🔗 n8n
+                            Instance</span><span>n8n.ritikyadav.com.np</span></div>
+                    <div class="profile-row"><span class="profile-label">📅 Member Since</span><span>Jan 2025</span>
+                    </div>
+                    <div class="profile-row"><span class="profile-label">🔑 API Key</span><span
+                            class="api-key-mask">••••••••••••JnJh4</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Settings Panel ===== -->
+    <div class="panel-overlay" id="settings-overlay">
+        <div class="side-panel">
+            <div class="panel-header">
+                <h3>⚙️ Settings</h3>
+                <button class="modal-close" id="settings-close">✕</button>
+            </div>
+            <div class="panel-body">
+                <div class="settings-section">
+                    <div class="settings-section-title">Appearance</div>
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <span>🌗 Theme</span>
+                            <span class="settings-desc">Switch between dark and light mode</span>
+                        </div>
+                        <div class="theme-toggle" id="theme-toggle">
+                            <span class="theme-option active" data-theme="dark">🌙 Dark</span>
+                            <span class="theme-option" data-theme="light">☀️ Light</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <div class="settings-section-title">Notifications</div>
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <span>🔔 Desktop Alerts</span>
+                            <span class="settings-desc">Get notified on critical workflow failures</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notif-toggle" checked />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <span>📧 Email Reports</span>
+                            <span class="settings-desc">Receive weekly summary emails</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="email-toggle" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <div class="settings-section-title">Data</div>
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <span>🔄 Auto-Refresh Interval</span>
+                            <span class="settings-desc">How often to poll n8n for updates</span>
+                        </div>
+                        <select class="settings-select" id="refresh-interval">
+                            <option value="30">30 seconds</option>
+                            <option value="60" selected>1 minute</option>
+                            <option value="300">5 minutes</option>
+                            <option value="0">Manual only</option>
+                        </select>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <span>🌍 Timezone</span>
+                            <span class="settings-desc">Display times in your local timezone</span>
+                        </div>
+                        <select class="settings-select" id="timezone-select">
+                            <option value="Asia/Kathmandu" selected>Asia/Kathmandu (NPT)</option>
+                            <option value="UTC">UTC</option>
+                            <option value="America/New_York">America/New_York (EST)</option>
+                            <option value="Europe/London">Europe/London (GMT)</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Add App Modal ===== -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Automated App</h3>
+                <button class="modal-close" id="modal-close">✕</button>
+            </div>
+            <form id="add-app-form">
+                <div class="form-group">
+                    <label for="app-name">App Name</label>
+                    <input type="text" id="app-name" name="app-name" placeholder="e.g. Temperature Monitor" required />
+                </div>
+                <div class="form-group">
+                    <label for="app-type">Type</label>
+                    <select id="app-type" name="app-type" required>
+                        <option value="">Select type…</option>
+                        <option value="n8n">n8n Workflow</option>
+                        <option value="iot">IoT Device</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="app-endpoint">Endpoint / Location</label>
+                    <input type="text" id="app-endpoint" name="app-endpoint"
+                        placeholder="e.g. https://n8n.example.com/webhook/..." />
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add App</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts (order matters: data → api → dashboard → app) -->
+    <script src="js/data.js"></script>
+    <script src="js/n8n-api.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
