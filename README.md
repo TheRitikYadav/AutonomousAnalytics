@@ -1,53 +1,43 @@
-
 # AutonomousAnalytics
-> **A Premium Monitoring Dashboard for n8n Automation & IoT Ecosystems**
 
-![Project Screenshot](/Users/ritik/.gemini/antigravity/brain/cf9c3e18-3d4c-4fc8-ad69-e4341194058d/dashboard_initial_view_1771390086849.png)
+A prototype dashboard for viewing n8n workflow activity and monitoring automation systems.
 
-AutonomousAnalytics is a sophisticated, real-time dashboard designed to centralize the health and performance metrics of your autonomous systems. Built for clarity and speed, it seamlessly integrates with your n8n instance to provide instant visibility into workflow executions, error trends, and critical alerts.
+![AutonomousAnalytics logo](logo.png)
 
-## 🚀 Key Features
+## Status: incomplete source snapshot
 
-- **Live Workflow Monitoring**: Instantly identify active, paused, and failing workflows at a glance.
-- **Deep Performance Analytics**: Visualize 14-day execution trends, success/error rates, and average execution times per workflow.
-- **Real-Time Alerts System**: Categorized notifications (🔴 Critical, 🟡 Warning, 🔵 Info) help you resolve issues immediately.
-- **Log Explorer**: A powerful, searchable interface to filter execution logs and debug failures fast.
-- **Premium Dark Aesthetics**: A sleek, modern UI designed for 24/7 operations centers, optimized for readability.
-- **Customizable Admin Profile**: Personalize your monitoring experience with custom avatars and detailed role information.
+**This repository currently does not include all assets needed to run its frontend.** The checked-in `index.html` references assets such as `css/styles.css` and `js/n8n-api.js`, but these files/directories are missing from the current default branch. Restore those assets before treating the dashboard as a runnable demo.
 
-## 🛠️ Tech Stack
+## Present in this repository
 
-- **Frontend**: Vanilla HTML5, CSS3 (Modern Variables & Flexbox/Grid), JavaScript (ES6+)
-- **Backend / Proxy**: Node.js (Express-style handling for API forwarding & CORS)
-- **Visualization**: Chart.js (Interactive Data Visualization)
-- **Styling**: Custom Design System (Glassmorphism, Neon Accents, Responsive Layouts)
+- `index.html` — dashboard interface and page structure
+- `server.js` — Node.js HTTP server and proxy for `/api/v1/*` requests to an n8n instance
+- `logo.png`, `favicon.png`, `profile.png` — interface assets
 
-## 📦 Quick Start
+The design includes sections for workflow monitoring, alerts and analytics. **The current source snapshot does not establish that these features work end-to-end.**
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/yourusername/autonomous-analytics.git
-    cd autonomous-analytics
-    ```
+## Local server
 
-2.  **Install Dependencies**
-    ```bash
-    npm install
-    # or just ensure Node.js is installed
-    ```
+A Node.js runtime is required; `server.js` uses built-in Node.js modules.
 
-3.  **Configure Environment**
-    Create a `.env` file (or update `server.js`) with your n8n API details:
-    ```env
-    N8N_API_URL=https://n8n.ritikyadav.com.np
-    N8N_API_KEY=your_api_key_here
-    ```
+```bash
+git clone https://github.com/TheRitikYadav/AutonomousAnalytics.git
+cd AutonomousAnalytics
+node server.js
+```
 
-4.  **Launch Dashboard**
-    ```bash
-    node server.js
-    ```
-    Open your browser to `http://localhost:3456`.
+The server listens on **http://localhost:3456**. The frontend will not be fully styled or functional until the missing files are restored.
 
-## 📸 Gallery
-*(Add more screenshots here to showcase Analytics, Logs, and Alerts pages)*
+### n8n configuration
+
+The current proxy target is configured using the `N8N_BASE` constant in `server.js`. It is **not** read from a `.env` file by the checked-in server. Update the application configuration for your own environment and keep all API credentials out of Git history.
+
+## Before deployment
+
+- [ ] Restore the missing CSS and JavaScript assets.
+- [ ] Check n8n integration and authentication end-to-end.
+- [ ] Review proxy authorization, request forwarding, CORS and access controls.
+- [ ] Add real screenshots and repeatable setup instructions.
+- [ ] Test the dashboard with a demo n8n environment.
+
+This README documents the checked-in code rather than claiming completed features or production readiness.
